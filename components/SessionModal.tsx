@@ -84,6 +84,7 @@ export const SessionModal: React.FC<SessionModalProps> = ({ session, onClose }) 
                       outerRadius={80}
                       paddingAngle={5}
                       dataKey="percent"
+                      nameKey="zone"
                     >
                       {activeZones.map((entry, index) => (
                         <Cell key={`cell-${index}`} fill={ZONE_COLORS[entry.zone] || '#cbd5e1'} stroke="rgba(0,0,0,0)" />
@@ -93,7 +94,11 @@ export const SessionModal: React.FC<SessionModalProps> = ({ session, onClose }) 
                       contentStyle={{ backgroundColor: '#1e293b', borderColor: '#334155', color: '#fff' }}
                       itemStyle={{ color: '#fff' }}
                     />
-                    <Legend />
+                    <Legend 
+                        iconType="circle"
+                        verticalAlign="bottom"
+                        wrapperStyle={{ paddingTop: '20px', color: '#cbd5e1' }}
+                    />
                   </PieChart>
                 </ResponsiveContainer>
               </div>

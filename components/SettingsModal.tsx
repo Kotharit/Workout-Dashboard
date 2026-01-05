@@ -1,13 +1,29 @@
-import React from 'react';
-import { X, Bell, Moon, User } from 'lucide-react';
+import React, { useState } from 'react';
+import { X, Bell, Moon, User, Copy, RefreshCw, Check, Trash2 } from 'lucide-react';
+import { WorkoutSession } from '../types';
 
 interface SettingsModalProps {
   isOpen: boolean;
   onClose: () => void;
+  sessions: WorkoutSession[];
+  onResetData: () => void;
 }
 
-export const SettingsModal: React.FC<SettingsModalProps> = ({ isOpen, onClose }) => {
+export const SettingsModal: React.FC<SettingsModalProps> = ({ isOpen, onClose, sessions, onResetData }) => {
+  const [copied, setCopied] = useState(false);
+
   if (!isOpen) return null;
+
+  const handleCopyData = () => {
+    // Format data to match RAW_WORKOUT_DATA in constants.ts (remove intensityScore)
+    const dataForExport = sessions.map(({ intensityScore, ...rest }) => rest);
+    const jsonString = JSON.stringify(dataForExport, null, 2);
+    
+    navigator.clipboard.writeText(jsonString).then(() => {
+      setCopied(true);
+      setTimeout(() => setCopied(false), 2000);
+    });
+  };
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/70 backdrop-blur-sm" onClick={onClose}>
@@ -25,7 +41,7 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({ isOpen, onClose })
           </button>
         </div>
         
-        <div className="p-6 space-y-6">
+        <div className="p-6 space-y-6 max-h-[70vh] overflow-y-auto custom-scrollbar">
           {/* Profile Section */}
           <div className="space-y-4">
             <h3 className="text-xs font-bold text-slate-500 uppercase tracking-wider">Account</h3>
@@ -64,6 +80,31 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({ isOpen, onClose })
                 <div className="absolute right-1 top-1 w-4 h-4 bg-white rounded-full shadow-sm"></div>
               </div>
             </div>
+          </div>
+
+          {/* Data Management */}
+          <div className="space-y-4 pt-4 border-t border-slate-700">
+            <h3 className="text-xs font-bold text-slate-500 uppercase tracking-wider">Data Management</h3>
+            
+            <div className="bg-slate-900/50 rounded-lg p-4 border border-slate-700 space-y-3">
+               <p className="text-sm text-slate-400">
+                 Copy your current data (including imported entries) to paste into <code className="text-orange-400">constants.ts</code>.
+               </p>
+               <button 
+                 onClick={handleCopyData}
+                 className="w-full flex items-center justify-center gap-2 py-2 rounded-lg bg-slate-700 hover:bg-slate-600 text-white font-medium transition-colors border border-slate-600"
+               >
+                 {copied ? <Check size={18} className="text-emerald-400" /> : <Copy size={18} />}
+                 {copied ? 'Copied to Clipboard!' : 'Copy JSON for Code'}
+               </button>
+            </div>
+
+            <button 
+              onClick={onResetData}
+              className="w-full flex items-center justify-center gap-2 py-2 rounded-lg text-red-400 hover:bg-red-500/10 hover:text-red-300 transition-colors text-sm"
+            >
+              <Trash2 size={16} /> Reset to Default Data
+            </button>
           </div>
           
           <div className="pt-2">

@@ -1,4 +1,4 @@
-import React, { useState, useMemo } from 'react';
+import React, { useState, useMemo, useEffect } from 'react';
 import { WORKOUT_DATA } from './constants';
 import { WorkoutSession } from './types';
 import { KPIGrid } from './components/KPIGrid';
@@ -13,10 +13,25 @@ import {
 import { Dumbbell, LayoutDashboard, Settings, Plus } from 'lucide-react';
 
 const App: React.FC = () => {
-  const [sessions, setSessions] = useState<WorkoutSession[]>(WORKOUT_DATA);
+  // Initialize state from Local Storage or constants
+  const [sessions, setSessions] = useState<WorkoutSession[]>(() => {
+    try {
+      const savedData = localStorage.getItem('pulseTrack_sessions');
+      return savedData ? JSON.parse(savedData) : WORKOUT_DATA;
+    } catch (e) {
+      console.error("Failed to load from local storage", e);
+      return WORKOUT_DATA;
+    }
+  });
+
   const [selectedSession, setSelectedSession] = useState<WorkoutSession | null>(null);
   const [isSettingsOpen, setIsSettingsOpen] = useState(false);
   const [isImportOpen, setIsImportOpen] = useState(false);
+
+  // Persist changes to Local Storage
+  useEffect(() => {
+    localStorage.setItem('pulseTrack_sessions', JSON.stringify(sessions));
+  }, [sessions]);
 
   // Prepare data for charts (chronological order)
   const chartData = useMemo(() => {
@@ -41,6 +56,13 @@ const App: React.FC = () => {
 
   const handleImport = (newSessions: WorkoutSession[]) => {
     setSessions(prev => [...prev, ...newSessions]);
+  };
+
+  const handleResetData = () => {
+    if (confirm('Are you sure you want to reset all data to the default constants? This will clear your imported entries.')) {
+      setSessions(WORKOUT_DATA);
+      setIsSettingsOpen(false);
+    }
   };
 
   const maxId = Math.max(...sessions.map(s => s.id), 0);
@@ -207,7 +229,12 @@ const App: React.FC = () => {
 
       {/* Modals */}
       <SessionModal session={selectedSession} onClose={() => setSelectedSession(null)} />
-      <SettingsModal isOpen={isSettingsOpen} onClose={() => setIsSettingsOpen(false)} />
+      <SettingsModal 
+        isOpen={isSettingsOpen} 
+        onClose={() => setIsSettingsOpen(false)} 
+        sessions={sessions}
+        onResetData={handleResetData}
+      />
       <ImportModal 
         isOpen={isImportOpen} 
         onClose={() => setIsImportOpen(false)} 
