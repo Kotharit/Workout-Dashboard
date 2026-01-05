@@ -1,7 +1,7 @@
 import { WorkoutSession } from './types';
 
 // Helper function to calculate Intensity Score
-const calculateIntensityScore = (session: Omit<WorkoutSession, 'intensityScore'>): number => {
+export const calculateIntensityScore = (session: Omit<WorkoutSession, 'intensityScore'>): number => {
   const duration = session.durationMin;
   const hrRatio = session.maxHr ? (session.avgHr / session.maxHr) : 0;
   
