@@ -1,0 +1,5 @@
+{
+  "name": "PulseTrack Dashboard",
+  "description": "A comprehensive fitness dashboard visualizing workout sessions, heart rate zones, and calorie burn trends.",
+  "requestFramePermissions": []
+}
